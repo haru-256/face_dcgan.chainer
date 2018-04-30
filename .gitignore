@@ -3,3 +3,4 @@ cropped_data
 *.jpg
 *~
 face_dcgan.chainer.wiki/
+.DS_Store
