@@ -6,7 +6,8 @@ experiment of generating face image
 
 ## Model Architecture
 ### Generator
-<img src="https://github.com/haru-256/face_dcgan.chainer/blob/master/gen_graph.png" width="">
+<img src="https://github.com/haru-256/face_dcgan.chainer/blob/master/gen_graph.png" width="100px">
+
 ![Generator](https://github.com/haru-256/face_dcgan.chainer/blob/master/gen_graph.png)
 ### Discriminator
 ![Discriminator](https://github.com/haru-256/face_dcgan.chainer/blob/master/dis_graph.png)
