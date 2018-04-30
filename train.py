@@ -8,6 +8,15 @@ from updater import DCGANUpdater
 from visualize import out_generated_image
 
 
+# Setup an optimizer
+def make_optimizer(model, alpha=0.0002, beta1=0.5):
+    optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
+    optimizer.setup(model)
+    optimizer.add_hook(
+        chainer.optimizers_hooks.WeightDecay(0.0001), 'hook_dec')
+    return optimizer
+
+
 def main():
     gpu = 0
     batch_size = 128
@@ -31,13 +40,6 @@ def main():
         chainer.backends.cuda.get_device_from_id(gpu).use()
         gen.to_gpu()  # Copy the model to the GPU
         dis.to_gpu()
-
-    # Setup an optimizer
-    def make_optimizer(model, alpha=0.0002, beta1=0.5):
-        optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
-        optimizer.setup(model)
-        optimizer.add_hook(chainer.optimizers_hooks.WeightDecay(0.0001), 'hook_dec')
-        return optimizer
 
     opt_gen = make_optimizer(gen)
     opt_dis = make_optimizer(dis)
@@ -70,13 +72,8 @@ def main():
         trigger=snapshot_interval)
     trainer.extend(extensions.LogReport())
     trainer.extend(
-        extensions.PrintReport([
-            'epoch',
-            'iteration',
-            'gen/loss',
-            'dis/loss',
-            'elapsed_time'
-        ]),
+        extensions.PrintReport(
+            ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time']),
         trigger=display_interval)
     trainer.extend(extensions.ProgressBar())
     trainer.extend(
