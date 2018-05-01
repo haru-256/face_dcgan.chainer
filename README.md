@@ -11,3 +11,5 @@ experiment of generating face image
 ### Discriminator
 <img src="https://github.com/haru-256/face_dcgan.chainer/blob/master/gen_graph.png" width="500px">
 
+## result
+<img src="https://raw.github.com/wiki/haru-256/face_dcgan.chainer/images/anim.gif" width="500px">
