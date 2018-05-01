@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import cv2
 import pathlib
 
-fig = plt.figure(figsize=(5, 5))
+fig = plt.figure(figsize=(10, 10))
 
 path = pathlib.Path("result/preview")
 
