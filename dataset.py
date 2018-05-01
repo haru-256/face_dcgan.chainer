@@ -1,6 +1,7 @@
 import chainer
 import cv2
 import pathlib
+import numpy as np
 """
 ChainerのDatasetは
 初期化 __init__
@@ -16,13 +17,18 @@ class FaceData(chainer.dataset.DatasetMixin):
     """
         cropped_data_128ディレクトリからデータを読み込む
     """
+
     def __init__(self):
         data_path = pathlib.Path("cropped_data_128")
         abs_data_path = data_path.resolve()
         print("data path:", abs_data_path)
+
         # Reading data
         self.data = [
-            cv2.imread(img_path) for img_path in abs_data_path.glob("*/*.jpg")
+            np.float32(
+                cv2.cvtColor(cv2.imread(str(img_path)),
+                             cv2.COLOR_BGR2RGB).transpose(-1, 0, 1))
+            for img_path in abs_data_path.glob("*/*.jpg")
         ]
 
     def __len__(self):

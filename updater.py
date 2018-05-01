@@ -1,6 +1,7 @@
 import chainer
 from chainer import Variable
 import chainer.functions as F
+import matplotlib.pyplot as plt
 
 
 class DCGANUpdater(chainer.training.StandardUpdater):
@@ -24,6 +25,7 @@ class DCGANUpdater(chainer.training.StandardUpdater):
         # obtain batch data
         # get_iterator("main") is SerialIterator so next() returns next minibatch
         batch = self.get_iterator("main").next()
+
         x_real = self.converter(
             batch, self.device
         )  # self.converter() is concat_example() また self.deviceでデータをgpuに送る

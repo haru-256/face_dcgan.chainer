@@ -5,3 +5,5 @@ cropped_data
 face_dcgan.chainer.wiki/
 .DS_Store
 *.dot
+__pycache__/
+result*/
