@@ -7,3 +7,5 @@ face_dcgan.chainer.wiki/
 *.dot
 __pycache__/
 result*/
+preview*/
+*.png

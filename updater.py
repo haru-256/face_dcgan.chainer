@@ -1,7 +1,6 @@
 import chainer
 from chainer import Variable
 import chainer.functions as F
-import matplotlib.pyplot as plt
 
 
 class DCGANUpdater(chainer.training.StandardUpdater):
