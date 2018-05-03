@@ -8,6 +8,7 @@ class DCGANUpdater(chainer.training.StandardUpdater):
     costomized updater for DCGAN
 
     Upedater の自作は，基本的に__init__とupdate_core overrideすればよい
+    update_core は1バッチの更新処理を書く
     """
 
     def __init__(self, *args, **kwargs):
