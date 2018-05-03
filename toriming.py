@@ -1,7 +1,6 @@
 import cv2
 import pathlib
 
-
 data_path = pathlib.Path("../data/lfw/")
 abs_data_path = data_path.resolve()
 save_path = pathlib.Path(".") / "cropped_data_128"
@@ -12,7 +11,6 @@ if not abs_save_path.exists():
 
 print("save dir:", abs_save_path)
 
-
 # center crop 150*150
 dx, dy = 128, 128
 for i, img_path in enumerate(abs_data_path.glob("*/*.jpg")):
@@ -22,4 +20,5 @@ for i, img_path in enumerate(abs_data_path.glob("*/*.jpg")):
     tmp = pathlib.Path(str(abs_save_path / img_path.parts[-2]))
     if not tmp.exists():
         tmp.mkdir()
-    cv2.imwrite(str(abs_save_path / "/".join(img_path.parts[-2:])), cropped_img)
+    cv2.imwrite(
+        str(abs_save_path / "/".join(img_path.parts[-2:])), cropped_img)

@@ -12,13 +12,14 @@ def combine_images(generated_images):
     rows = int(np.ceil(float(total) / cols))
     width, height = generated_images.shape[1:3]
     combined_image = np.zeros(
-        (height * rows, width * cols), dtype=generated_images.dtype)
+        (height * rows, width * cols, 3), dtype=generated_images.dtype)
 
     for index, image in enumerate(generated_images):
         i = int(index / cols)
         j = index % cols
-        combined_image[width*i:width*(i+1), height*j:height*(j+1)] =\
-            image[:, :, 0]
+        for ch in range(3):
+            combined_image[width*i:width*(i+1), height*j:height*(j+1), ch] =\
+                                                                         image[:, :, ch]
     return combined_image
 
 
@@ -27,19 +28,19 @@ def out_generated_image(gen, dis, rows, cols, seed, dst):
     def make_image(trainer):
         n_images = rows * cols
 
-        xp = gen.xp  # get module 
+        xp = gen.xp  # get module
         xp.random.seed(seed)  # fix seed
         z = Variable(xp.asarray(gen.make_hidden(n_images)))
         labels = Variable(xp.repeat(xp.array([i for i in range(10)]), 10))
         with chainer.using_config('train', False):
-            x = gen(z, labels, 10)
+            x = gen(z)
         x = chainer.backends.cuda.to_cpu(x.data)
         xp.random.seed()
 
-        x = x * 127.5 + 127.5
+        x = (x * 127.5 + 127.5) / 255  # 0~255に戻し0~1へ変形
         x = x.transpose(0, 2, 3, 1)  # NCHW->NHWCに変形
         x = combine_images(x)
-        plt.imshow(x, cmap=plt.cm.gray)
+        plt.imshow(x)
         plt.axis("off")
         preview_dir = pathlib.Path('{}/preview'.format(dst))
         preview_path = preview_dir /\
