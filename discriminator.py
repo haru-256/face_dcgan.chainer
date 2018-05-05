@@ -52,7 +52,7 @@ class Discriminator(chainer.Chain):
             self.bn2 = L.BatchNormalization(size=ch // 4)
             self.bn3 = L.BatchNormalization(size=ch // 2)
             self.bn4 = L.BatchNormalization(size=ch)
-            self.bn5 = L.BatchNormalization(size=1)
+            # self.bn5 = L.BatchNormalization(size=1)  # case of aplying BN to outputlayer
 
     def __call__(self, x):
         """
