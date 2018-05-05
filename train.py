@@ -3,7 +3,9 @@ from chainer import training
 from chainer.training import extensions
 from dataset import FaceData
 
-from discriminator import Discriminator
+# from discriminator import Discriminator
+from discriminator2 import Discriminator
+# from discriminator3 import Discriminator
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
@@ -83,7 +85,7 @@ def main():
         extensions.PrintReport(
             ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time']),
         trigger=display_interval)
-    trainer.extend(extensions.ProgressBar())
+    trainer.extend(extensions.ProgressBar(update_interval=50))
     trainer.extend(
         out_generated_image(gen, dis, 5, 5, seed, out),
         trigger=display_interval)
