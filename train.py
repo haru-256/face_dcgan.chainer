@@ -23,8 +23,8 @@ def make_optimizer(model, alpha=0.0002, beta1=0.5):
 
 
 def main():
-    import numpy
-    numpy.random.seed(0)
+    import numpy as np
+    np.random.seed(0)
     import chainer
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(0)
