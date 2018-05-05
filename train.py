@@ -1,6 +1,7 @@
 import chainer
 from chainer import training
 from chainer.training import extensions
+from chainer.datasets import ImageDataset
 from dataset import FaceData
 
 # from discriminator import Discriminator
@@ -9,6 +10,7 @@ from discriminator2 import Discriminator
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
+import pathlib
 
 
 # Setup an optimizer
@@ -54,9 +56,16 @@ def main():
     opt_gen = make_optimizer(gen)
     opt_dis = make_optimizer(dis)
 
-    # Load the mnist dataset and make iterator
+    # Prepare Dataset
+    """
     train = FaceData()
-    train_iter = chainer.iterators.SerialIterator(train, batch_size)
+    """
+    data_dir = pathlib.Path("cropped_data_128")
+    abs_data_dir = data_path.resolve()
+    print("data dir path:", abs_data_path)
+    data_path = [path for path in abs_data_dir.glob("*/*.jpg")]
+    data = ImageDataset(paths=data_path)  # dtype=np.float32
+    train_iter = chainer.iterators.SerialIterator(data, batch_size)
 
     # Set up a updater and trainer
     updater = DCGANUpdater(

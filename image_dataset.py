@@ -15,3 +15,4 @@ print(data.get_example(0).shape)
 # %%
 import matplotlib.pyplot as plt
 plt.imshow(image.transpose(1, 2, 0).astype("int"))
+print(data[0].shape)
