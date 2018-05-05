@@ -13,3 +13,11 @@ experiment of generating face image
 
 ## result
 <img src="https://raw.github.com/wiki/haru-256/face_dcgan.chainer/images/anim.gif" width="500px">
+
+## Loss
+### Generator
+$$
+ L_G = \log(1+exp(x))
+$$
+
+### Discriminator
