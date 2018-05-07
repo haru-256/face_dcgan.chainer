@@ -46,7 +46,8 @@ class Discriminator(chainer.Chain):
                 stride=2,
                 pad=2,
                 initialW=w)  # (, 1024, 64, 64)
-            self.l5 = L.Linear(in_size=None, out_size=1, initialW=w)
+            self.l5 = L.Linear(
+                in_size=None, out_size=1, initialW=w)
 
             self.bn1 = L.BatchNormalization(size=ch // 8)
             self.bn2 = L.BatchNormalization(size=ch // 4)
