@@ -5,7 +5,7 @@ import pathlib
 
 fig = plt.figure(figsize=(10, 10))
 
-path = pathlib.Path("result/preview")
+path = pathlib.Path("result2_b/preview")
 
 ims = []
 
@@ -16,5 +16,5 @@ for epoch in range(1, 101):
 ani = animation.ArtistAnimation(fig, ims, interval=500)
 # ani.save('anim.mp4', writer="ffmpeg")
 plt.axis("off")
-ani.save('anim.gif', writer="imagemagick")
+ani.save('anim2_b.gif', writer="imagemagick")
 plt.show()
