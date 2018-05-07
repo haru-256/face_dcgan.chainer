@@ -61,9 +61,10 @@ def main():
     train = FaceData()
     """
     data_dir = pathlib.Path("cropped_data_128")
-    abs_data_dir = data_path.resolve()
-    print("data dir path:", abs_data_path)
+    abs_data_dir = data_dir.resolve()
+    print("data dir path:", abs_data_dir)
     data_path = [path for path in abs_data_dir.glob("*/*.jpg")]
+    print("data length:", len(data_path))
     data = ImageDataset(paths=data_path)  # dtype=np.float32
     train_iter = chainer.iterators.SerialIterator(data, batch_size)
 
@@ -94,7 +95,7 @@ def main():
         extensions.PrintReport(
             ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time']),
         trigger=display_interval)
-    trainer.extend(extensions.ProgressBar(update_interval=50))
+    trainer.extend(extensions.ProgressBar(update_interval=30))
     trainer.extend(
         out_generated_image(gen, dis, 5, 5, seed, out),
         trigger=display_interval)
