@@ -24,6 +24,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 128, 32, 32)
             self.c2 = L.Convolution2D(
                 in_channels=None,
@@ -31,6 +32,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 256, 16, 16)
             self.c3 = L.Convolution2D(
                 in_channels=None,
@@ -38,6 +40,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 512, 8, 8)
             self.c4 = L.Convolution2D(
                 in_channels=None,
@@ -45,6 +48,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 1, 4, 4)
             self.c5 = L.Convolution2D(
                 in_channels=None,
