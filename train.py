@@ -5,7 +5,6 @@ from chainer.datasets import ImageDataset
 from dataset import FaceData
 
 # from discriminator import Discriminator
-# from discriminator2 import Discriminator
 from discriminator3 import Discriminator
 from generator import Generator
 from updater import DCGANUpdater
@@ -17,8 +16,9 @@ import pathlib
 def make_optimizer(model, alpha=0.0002, beta1=0.5):
     optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
     optimizer.setup(model)
-    optimizer.add_hook(
-        chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
+    """
+    optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
+    """
     return optimizer
 
 
@@ -29,18 +29,19 @@ def main():
     import chainer
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(0)
-    gpu = 1
+    gpu = 0
     batch_size = 128
     n_hidden = 100
     epoch = 300
-    seed = 0
-    out = "result3_b"
+    seed = 1
+    out = "result5_a_{}".format(seed)
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
     print('# n_hidden: {}'.format(n_hidden))
     print('# epoch: {}'.format(epoch))
     print('# out: {}'.format(out))
+    print('# seed: {}'.format(seed))
     print('')
 
     # Set up a neural network to train
