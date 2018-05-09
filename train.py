@@ -4,8 +4,8 @@ from chainer.training import extensions
 from chainer.datasets import ImageDataset
 from dataset import FaceData
 
-from discriminator import Discriminator  # Dence nobias
-# from discriminator3 import Discriminator # GAP nobias
+# from discriminator import Discriminator  # Dence nobias
+from discriminator3 import Discriminator # GAP nobias
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
@@ -25,12 +25,12 @@ def main():
 
     # fix seed
     seed = 0
-
     import numpy as np
     np.random.seed(seed)
     import chainer
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(seed)
+
     gpu = 0
     batch_size = 128
     n_hidden = 100
