@@ -4,6 +4,10 @@ import chainer.links as L
 
 
 class Discriminator(chainer.Chain):
+    """
+    Discriminator applying GAP and nobias to discriminator.Discrimiator
+    """
+
     def __init__(self, bottom_width=128, ch=1024, wscale=0.02):
         super(Discriminator, self).__init__()
         with self.init_scope():
@@ -91,7 +95,7 @@ if __name__ == "__main__":
     import numpy as np
 
     # batch データが1つでtrain:Trueの時にBNに通すとWarningが出る
-    # https://github.com/chainer/chainer/pull/3996のこと
+    # https://github.com/chainer/chainer/pull/3996 のこと
     z = np.random.uniform(-1, 1, (1, 3, 128, 128)).astype("f")
     labels = np.array([1])
     model = Discriminator()

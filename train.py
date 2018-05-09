@@ -17,11 +17,15 @@ def make_optimizer(model, alpha=0.0002, beta1=0.5):
     optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
     optimizer.setup(model)
     # optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
+
     return optimizer
 
 
 def main():
+
+    # fix seed
     seed = 0
+
     import numpy as np
     np.random.seed(seed)
     import chainer
@@ -31,13 +35,14 @@ def main():
     batch_size = 128
     n_hidden = 100
     epoch = 300
-    out = "result5_a"  # cas of GAP
+    out = "result5_a_{}".format(seed)  # GAP
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
     print('# n_hidden: {}'.format(n_hidden))
     print('# epoch: {}'.format(epoch))
     print('# out: {}'.format(out))
+    print('# seed: {}'.format(seed))
     print('')
 
     # Set up a neural network to train
