@@ -4,8 +4,8 @@ from chainer.training import extensions
 from chainer.datasets import ImageDataset
 from dataset import FaceData
 
-# from discriminator import Discriminator
-from discriminator3 import Discriminator
+# from discriminator import Discriminator  # Dence nobias
+from discriminator3 import Discriminator # GAP nobias
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
@@ -17,25 +17,26 @@ import pathlib
 def make_optimizer(model, alpha=0.0002, beta1=0.5):
     optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
     optimizer.setup(model)
-    """
-    optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
-    """
+    # optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
+
     return optimizer
 
 
 def main():
+
     # fix seed
+    seed = 0
     import numpy as np
-    np.random.seed(0)
+    np.random.seed(seed)
     import chainer
     if chainer.backends.cuda.available:
-        chainer.backends.cuda.cupy.random.seed(0)
+        chainer.backends.cuda.cupy.random.seed(seed)
+
     gpu = 0
     batch_size = 128
     n_hidden = 100
     epoch = 300
-    seed = 1
-    out = "result5_a_{}".format(seed)
+    out = "result5_a_{}".format(seed)  # GAP
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))

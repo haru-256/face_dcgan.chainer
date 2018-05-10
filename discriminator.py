@@ -6,6 +6,7 @@ import chainer.links as L
 class Discriminator(chainer.Chain):
     def __init__(self, bottom_width=128, ch=1024, wscale=0.02):
         super(Discriminator, self).__init__()
+        print("Discriminator aplying Dense to outputlayer")
         with self.init_scope():
             # initializers
             w = chainer.initializers.Normal(wscale)
@@ -24,6 +25,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 128, 64, 64)
             self.c2 = L.Convolution2D(
                 in_channels=None,
@@ -31,6 +33,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 256, 64, 64)
             self.c3 = L.Convolution2D(
                 in_channels=None,
@@ -38,6 +41,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 512, 64, 64)
             self.c4 = L.Convolution2D(
                 in_channels=None,
@@ -45,6 +49,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 1024, 64, 64)
             self.l5 = L.Linear(
                 in_size=None, out_size=1, initialW=w)
