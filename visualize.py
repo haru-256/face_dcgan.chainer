@@ -19,7 +19,7 @@ def combine_images(generated_images):
         j = index % cols
         for ch in range(3):
             combined_image[width*i:width*(i+1), height*j:height*(j+1), ch] =\
-                                                                         image[:, :, ch]
+                image[:, :, ch]
     return combined_image
 
 
@@ -31,9 +31,15 @@ def out_generated_image(gen, dis, rows, cols, seed, dst):
         xp = gen.xp  # get module
         xp.random.seed(seed)  # fix seed
         z = Variable(xp.asarray(gen.make_hidden(n_images)))
-        labels = Variable(xp.repeat(xp.array([i for i in range(10)]), 10))
+        # test, ecaluationの時は以下の２つを設定しなければならない
+        # https://qiita.com/mitmul/items/1e35fba085eb07a92560
+        # 'train'をFalseにすることで，train時とテスト時で挙動が異なるlayer(BN, Dropout)
+        # を制御する
         with chainer.using_config('train', False):
-            x = gen(z)
+            # 'enable_backprop'をFalseとすることで，無駄な計算グラフの構築を行わない
+            # ようにしメモリの消費量を抑える.
+            with chainer.using_config('enable_backprop', False):
+                x = gen(z)
         x = chainer.backends.cuda.to_cpu(x.data)
         xp.random.seed()
 

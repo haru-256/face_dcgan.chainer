@@ -9,6 +9,7 @@ from discriminator3 import Discriminator
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
+from accuracy_reporter import accuracy_report
 import pathlib
 
 
@@ -94,12 +95,15 @@ def main():
     trainer.extend(extensions.LogReport())
     trainer.extend(
         extensions.PrintReport(
-            ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time']),
+            ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time', 'dis/accuracy']),
         trigger=display_interval)
     trainer.extend(extensions.ProgressBar(update_interval=30))
     trainer.extend(
         out_generated_image(gen, dis, 5, 5, seed, out),
         trigger=display_interval)
+    # extensionにaccuaracy を求めるのはおかしい?
+    trainer.extend(accuracy_report(gen, dis, data=data),
+                   trigger=display_interval)
     trainer.extend(
         extensions.PlotReport(
             ['gen/loss', 'dis/loss'], x_key='epoch', file_name='loss.png'))
