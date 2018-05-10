@@ -34,39 +34,44 @@ class Generator(chainer.Chain):
 
         with self.init_scope():
             w = chainer.initializers.Normal(wscale)  # initializers
-
+            # w = chainer.initializers.HeNormal()  # He initialize value
             self.l0 = L.Linear(
                 None,
                 self.ch * self.bottom_width * self.bottom_width,
-                initialW=w)
+                initialW=w,
+                nobias=True)
             self.dc1 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 2,
                 ksize=6,
                 stride=2,
                 pad=2,
-                initialW=w)  # (, 512, 8, 8)
+                initialW=w,
+                nobias=True)  # (, 512, 8, 8)
             self.dc2 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 4,
                 ksize=6,
                 stride=2,
                 pad=2,
-                initialW=w)  # (, 256, 16, 16)
+                initialW=w,
+                nobias=True)  # (, 256, 16, 16)
             self.dc3 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 8,
                 ksize=6,
                 stride=2,
                 pad=2,
-                initialW=w)  # (, 128, 32, 32)
+                initialW=w,
+                nobias=True)  # (, 128, 32, 32)
             self.dc4 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 16,
                 ksize=6,
                 stride=2,
                 pad=2,
-                initialW=w)  # (, 64, 64, 64)
+                initialW=w,
+                nobias=True)  # (, 64, 64, 64)
             self.dc5 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=3,

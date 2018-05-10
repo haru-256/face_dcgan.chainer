@@ -4,8 +4,13 @@ import chainer.links as L
 
 
 class Discriminator(chainer.Chain):
+    """
+    Discriminator applying GAP and nobias to discriminator.Discrimiator
+    """
+
     def __init__(self, bottom_width=128, ch=1024, wscale=0.02):
         super(Discriminator, self).__init__()
+        print("Discriminator applying GAP to output layer")
         with self.init_scope():
             # initializers
             w = chainer.initializers.Normal(wscale)
@@ -24,6 +29,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 128, 32, 32)
             self.c2 = L.Convolution2D(
                 in_channels=None,
@@ -31,6 +37,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 256, 16, 16)
             self.c3 = L.Convolution2D(
                 in_channels=None,
@@ -38,6 +45,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 512, 8, 8)
             self.c4 = L.Convolution2D(
                 in_channels=None,
@@ -45,6 +53,7 @@ class Discriminator(chainer.Chain):
                 ksize=5,
                 stride=2,
                 pad=2,
+                nobias=True,
                 initialW=w)  # (, 1, 4, 4)
             self.c5 = L.Convolution2D(
                 in_channels=None,
@@ -87,7 +96,7 @@ if __name__ == "__main__":
     import numpy as np
 
     # batch データが1つでtrain:Trueの時にBNに通すとWarningが出る
-    # https://github.com/chainer/chainer/pull/3996のこと
+    # https://github.com/chainer/chainer/pull/3996 のこと
     z = np.random.uniform(-1, 1, (1, 3, 128, 128)).astype("f")
     labels = np.array([1])
     model = Discriminator()
