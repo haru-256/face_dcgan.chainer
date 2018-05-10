@@ -2,6 +2,24 @@ import chainer
 from chainer import Variable
 
 
+class Accuracy_Reporter(chainer.Chain):
+    """
+    The class that reports accuracy of Discriminator
+
+    Parameters
+    ------------
+    predictor: Link
+       Discriminators
+
+    report_name: str
+       this report is whether fake image or real image
+
+
+    """
+
+    def __init__(self, predictor, report_name, n_image=100, seed=0):
+
+
 def accuracy_report(gen, dis, data, n_images=100, seed=0, report_name="accuracy"):
     """
     This function measures accuracy of Discriminator.

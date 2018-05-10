@@ -5,7 +5,7 @@ from chainer.datasets import ImageDataset
 from dataset import FaceData
 
 # from discriminator import Discriminator  # Dence nobias
-from discriminator3 import Discriminator # GAP nobias
+from discriminator3 import Discriminator  # GAP nobias
 from generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
@@ -103,6 +103,7 @@ def main():
         out_generated_image(gen, dis, 5, 5, seed, out),
         trigger=display_interval)
     # extensionにaccuaracy を求めるのはおかしい?
+    # L.Classifierの様にaccuracyをreportする
     trainer.extend(accuracy_report(gen, dis, data=data),
                    trigger=display_interval)
     trainer.extend(
