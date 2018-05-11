@@ -85,6 +85,7 @@ def main():
 
     snapshot_interval = (10, 'epoch')
     display_interval = (1, 'epoch')
+    # storage method is hdf5
     trainer.extend(
         extensions.snapshot(
             filename='snapshot_iter_{.updater.iteration}.h5', savefun=save_hdf5),
