@@ -2,6 +2,7 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 from chainer.datasets import ImageDataset
+from chainer.serializers import save_hdf5
 from dataset import FaceData
 
 # from discriminator import Discriminator  # Dence nobias
@@ -85,13 +86,16 @@ def main():
     snapshot_interval = (10, 'epoch')
     display_interval = (1, 'epoch')
     trainer.extend(
-        extensions.snapshot(filename='snapshot_iter_{.updater.iteration}.npz'),
+        extensions.snapshot(
+            filename='snapshot_iter_{.updater.iteration}.h5', savefun=save_hdf5),
         trigger=snapshot_interval)
     trainer.extend(
-        extensions.snapshot_object(gen, 'gen_iter_{.updater.iteration}.npz'),
+        extensions.snapshot_object(
+            gen, 'gen_iter_{.updater.iteration}.h5', savefun=save_hdf5),
         trigger=snapshot_interval)
     trainer.extend(
-        extensions.snapshot_object(dis, 'dis_iter_{.updater.iteration}.npz'),
+        extensions.snapshot_object(
+            dis, 'dis_iter_{.updater.iteration}.h5', savefun=save_hdf5),
         trigger=snapshot_interval)
     trainer.extend(extensions.LogReport())
     trainer.extend(
