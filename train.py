@@ -88,7 +88,8 @@ def main():
     # storage method is hdf5
     trainer.extend(
         extensions.snapshot(
-            filename='snapshot_iter_{.updater.iteration}.h5', savefun=save_hdf5),
+            filename='snapshot_iter_{.updater.iteration}.h5',
+            savefun=save_hdf5),
         trigger=snapshot_interval)
     trainer.extend(
         extensions.snapshot_object(
@@ -100,8 +101,10 @@ def main():
         trigger=snapshot_interval)
     trainer.extend(extensions.LogReport())
     trainer.extend(
-        extensions.PrintReport(
-            ['epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time', 'dis/accuracy']),
+        extensions.PrintReport([
+            'epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time',
+            'dis/accuracy'
+        ]),
         trigger=display_interval)
     trainer.extend(extensions.ProgressBar(update_interval=30))
     trainer.extend(
@@ -109,8 +112,10 @@ def main():
         trigger=display_interval)
     # extensionにaccuaracy を求めるのはおかしい?
     # L.Classifierの様にaccuracyをreportする
+    """
     trainer.extend(accuracy_report(gen, dis, data=data),
                    trigger=display_interval)
+    """
     trainer.extend(
         extensions.PlotReport(
             ['gen/loss', 'dis/loss'], x_key='epoch', file_name='loss.png'))
