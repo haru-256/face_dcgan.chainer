@@ -30,6 +30,7 @@ def out_generated_image(gen, dis, rows, cols, seed, dst):
 
         xp = gen.xp  # get module
         xp.random.seed(seed)  # fix seed
+        np.random.seed(seed)  # fix seed
         z = Variable(xp.asarray(gen.make_hidden(n_images)))
         labels = Variable(xp.repeat(xp.array([i for i in range(10)]), 10))
         with chainer.using_config('train', False):

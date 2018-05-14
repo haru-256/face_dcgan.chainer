@@ -24,18 +24,18 @@ def make_optimizer(model, alpha=0.0002, beta1=0.5):
 def main():
 
     # fix seed
-    seed = 0
+    seed = 2
     import numpy as np
     np.random.seed(seed)
     import chainer
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(seed)
 
-    gpu = 0
+    gpu = 1  # GAP: 0, Dense: 1
     batch_size = 128
     n_hidden = 100
-    epoch = 300
-    out = "result5_a_{}".format(seed)  # GAP
+    epoch = 300  # Dence:100 GAP:300
+    out = "result5_a_{}".format(seed)  # GAP:a, Dense:b
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
