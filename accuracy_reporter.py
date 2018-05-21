@@ -18,6 +18,7 @@ class Accuracy_Reporter(chainer.Chain):
     """
 
     def __init__(self, predictor, report_name, n_image=100, seed=0):
+        pass
 
 
 def accuracy_report(gen, dis, data, n_images=100, seed=0, report_name="accuracy"):
@@ -51,13 +52,14 @@ def accuracy_report(gen, dis, data, n_images=100, seed=0, report_name="accuracy"
 
         """prepare real image"""
         """
-        real_image = data[xp.random.randint(
-            len(data), size=n_images)]  # get real image
-        real_image = chainer.backends.cuda.to_gpu(real_image.data)  # copy to gpu: cupy
-        """
+            real_image = data[xp.random.randint(
+                len(data), size=n_images)]  # get real image
+            real_image = chainer.backends.cuda.to_gpu(real_image.data)  # copy to gpu: cupy
+            """
 
         """prepare fake image"""
-        z = Variable(xp.asarray(gen.make_hidden(n_images)))  # get noize: cupy
+        z = Variable(xp.asarray(gen.make_hidden(n_images))
+                     )  # get noize: cupy
         xp.random.seed()  # Free seed
 
         # test, evaluationの時は以下の２つを設定しなければならない
@@ -68,20 +70,20 @@ def accuracy_report(gen, dis, data, n_images=100, seed=0, report_name="accuracy"
             # 'enable_backprop'をFalseとすることで，無駄な計算グラフの構築を行わない
             # ようにしメモリの消費量を抑える.
             with chainer.using_config('enable_backprop', False):
-                fake_image = gen(z)   
+                fake_image = gen(z)
                 # evaluate Discriminator
                 # real = dis(real_image)
                 fake = dis(fake_image)
 
-        """
-        real = chainer.backends.cuda.to_cpu(
-                    real.data)  # copy x to cpu & get fake image: numpy
-        """
+            """
+           real = chainer.backends.cuda.to_cpu(
+                        real.data)  # copy x to cpu & get fake image: numpy
+            """
         fake = chainer.backends.cuda.to_cpu(
-                    fake.data)  # copy fake to cpu & get fake image: numpy
+            fake.data)  # copy fake to cpu & get fake image: numpy
         # calculate accuracy
         sum = len(fake[fake > 0.5])  # 偽物を本物と正答した数
-        # sum += len(real[real >= 0.5])  # 本物を本物と正答した数        
+        # sum += len(real[real >= 0.5])  # 本物を本物と正答した数
         # accuracy = sum / (len(real) + len(fake))
         accuracy = sum / len(fake)  # 謝り識別率
 
