@@ -2,20 +2,22 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 from chainer.datasets import ImageDataset
-from chainer.serializers import save_hdf5
+from chainer.serializers import save_npz
 from dataset import FaceData
 
 # from discriminator import Discriminator  # Dence nobias
-from discriminator3 import Discriminator  # GAP nobias
-from generator import Generator
+from r_discriminator import Discriminator  # GAP nobias
+from r_generator import Generator
 from updater import DCGANUpdater
 from visualize import out_generated_image
-from accuracy_reporter import accuracy_report
+# from accuracy_reporter import accuracy_report
 import pathlib
 
 
-# Setup an optimizer
 def make_optimizer(model, alpha=0.0002, beta1=0.5):
+    """
+    Setup an optimizer
+    """
     optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
     optimizer.setup(model)
     # optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
@@ -26,18 +28,18 @@ def make_optimizer(model, alpha=0.0002, beta1=0.5):
 def main():
 
     # fix seed
-    seed = 2
+    seed = 0
     import numpy as np
     np.random.seed(seed)
     import chainer
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(seed)
 
-    gpu = 1  # GAP: 0, Dense: 1
+    gpu = 0  # GAP: 0, Dense: 1
     batch_size = 128
     n_hidden = 100
-    epoch = 300  # Dence:100 GAP:300
-    out = "result5_a_{}".format(seed)  # GAP:a, Dense:b
+    epoch = 500  # Dence:100 GAP:300
+    out = "result_r_{}".format(seed)  # GAP:a, Dense:b
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
@@ -64,7 +66,7 @@ def main():
     """
     train = FaceData()
     """
-    data_dir = pathlib.Path("cropped_data_128")
+    data_dir = pathlib.Path("./rsize_data_64")
     abs_data_dir = data_dir.resolve()
     print("data dir path:", abs_data_dir)
     data_path = [path for path in abs_data_dir.glob("*/*.jpg")]
@@ -88,16 +90,16 @@ def main():
     # storage method is hdf5
     trainer.extend(
         extensions.snapshot(
-            filename='snapshot_iter_{.updater.iteration}.h5',
-            savefun=save_hdf5),
+            filename='snapshot_iter_{.updater.iteration}.npz',
+            savefun=save_npz),
         trigger=snapshot_interval)
     trainer.extend(
         extensions.snapshot_object(
-            gen, 'gen_iter_{.updater.iteration}.h5', savefun=save_hdf5),
+            gen, 'gen_iter_{.updater.iteration}.npz', savefun=save_npz),
         trigger=snapshot_interval)
     trainer.extend(
         extensions.snapshot_object(
-            dis, 'dis_iter_{.updater.iteration}.h5', savefun=save_hdf5),
+            dis, 'dis_iter_{.updater.iteration}.npz', savefun=save_npz),
         trigger=snapshot_interval)
     trainer.extend(extensions.LogReport())
     trainer.extend(

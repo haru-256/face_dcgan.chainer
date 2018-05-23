@@ -43,6 +43,7 @@ def out_generated_image(gen, dis, rows, cols, seed, dst):
                 x = gen(z)
         x = chainer.backends.cuda.to_cpu(x.data)
         xp.random.seed()
+        np.random.seed()
 
         x = (x * 127.5 + 127.5) / 255  # 0~255に戻し0~1へ変形
         x = x.transpose(0, 2, 3, 1)  # NCHW->NHWCに変形
