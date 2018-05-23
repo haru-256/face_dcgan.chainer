@@ -2,9 +2,9 @@ import cv2
 import pathlib
 import matplotlib.pyplot as plt
 
-data_path = pathlib.Path("../data/lfw/")
+data_path = pathlib.Path("../data/lfw-deepfunneled")
 abs_data_path = data_path.resolve()
-save_path = pathlib.Path(".") / "cropped_data_100"
+save_path = pathlib.Path(".") / "cropped_data_128_df"
 abs_save_path = save_path.resolve()
 
 if not abs_save_path.exists():
@@ -13,7 +13,7 @@ if not abs_save_path.exists():
 print("save dir:", abs_save_path)
 
 # center crop 150*150
-dx, dy = 100, 100
+dx, dy = 128, 128
 for i, img_path in enumerate(abs_data_path.glob("*/*.jpg")):
     img = cv2.imread(str(img_path))
     cropped_img = img[125 - dx // 2:125 + dx // 2, 125 - dy // 2:125 + dy // 2]
