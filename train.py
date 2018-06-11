@@ -167,7 +167,7 @@ if __name__ == '__main__':
         trigger=display_interval)
     trainer.extend(extensions.ProgressBar(update_interval=20))
     trainer.extend(
-        out_generated_image(gen, dis, 7, 7, seed, out),
+        out_generated_image(gen, dis, 5, 5, seed, out),
         trigger=display_interval)
     trainer.extend(
         extensions.PlotReport(
