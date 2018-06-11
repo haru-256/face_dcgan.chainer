@@ -42,20 +42,22 @@ def out_generated_image(gen, dis, rows, cols, seed, dst):
             with chainer.using_config('enable_backprop', False):
                 x = gen(z)
         x = chainer.backends.cuda.to_cpu(x.data)
-        xp.random.seed()
         np.random.seed()
 
         x = (x * 127.5 + 127.5) / 255  # 0~255に戻し0~1へ変形
         x = x.transpose(0, 2, 3, 1)  # NCHW->NHWCに変形
         x = combine_images(x)
-        plt.imshow(x)
-        plt.axis("off")
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(5, 4))
+        axes.imshow(x)
+        axes.axis("off")
         preview_dir = pathlib.Path('{}/preview'.format(dst))
         preview_path = preview_dir /\
-            'image_{:}epoch.png'.format(trainer.updater.epoch)
+            'image_{:}epoch.jpg'.format(trainer.updater.epoch)
         if not preview_dir.exists():
             preview_dir.mkdir()
-        plt.tight_layout()
-        plt.savefig(preview_path)
+        axes.set_title("epoch: {}".format(trainer.updater.epoch), fontsize=18)
+        fig.tight_layout()
+        fig.savefig(preview_path)
+        plt.close(fig)
 
     return make_image
