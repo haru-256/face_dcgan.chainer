@@ -34,7 +34,7 @@ path = pathlib.Path("./result_{0}/result_{1}/preview".format(number, strings))
 
 # store image to use as frame to array "imgs"
 imgs = []
-for epoch in range(1, 101):
+for epoch in range(1, 301):
     img = Image.open(path / "image_{}epoch.jpg".format(epoch))
     imgs.append(img)
 

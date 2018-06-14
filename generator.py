@@ -26,7 +26,7 @@ class Generator(chainer.Chain):
     ---------------------
     """
 
-    def __init__(self, n_hidden=100, bottom_width=4, ch=1024, wscale=0.02):
+    def __init__(self, n_hidden=100, bottom_width=4, ch=1024, wscale=0.02, ksize=6, pad=2):
         super(Generator, self).__init__()
         self.n_hidden = n_hidden
         self.ch = ch
@@ -43,41 +43,41 @@ class Generator(chainer.Chain):
             self.dc1 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 2,
-                ksize=6,
+                ksize=ksize,
                 stride=2,
-                pad=2,
+                pad=pad,
                 initialW=w,
                 nobias=True)  # (, 512, 8, 8)
             self.dc2 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 4,
-                ksize=6,
+                ksize=ksize,
                 stride=2,
-                pad=2,
+                pad=pad,
                 initialW=w,
                 nobias=True)  # (, 256, 16, 16)
             self.dc3 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 8,
-                ksize=6,
+                ksize=ksize,
                 stride=2,
-                pad=2,
+                pad=pad,
                 initialW=w,
                 nobias=True)  # (, 128, 32, 32)
             self.dc4 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=ch // 16,
-                ksize=6,
+                ksize=ksize,
                 stride=2,
-                pad=2,
+                pad=pad,
                 initialW=w,
                 nobias=True)  # (, 64, 64, 64)
             self.dc5 = L.Deconvolution2D(
                 in_channels=None,
                 out_channels=3,
-                ksize=6,
+                ksize=ksize,
                 stride=2,
-                pad=2,
+                pad=pad,
                 initialW=w)  # (, 3, 128, 128)
             self.bn0 = L.BatchNormalization(
                 self.ch * self.bottom_width * self.bottom_width)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     z = np.random.uniform(-1, 1, (1, 100)).astype("f")
     labels = Variable(np.array([2]))
     # labels = np.array([2])
-    model = Generator()
+    model = Generator(ksize=4, pad=1)
     img = model(Variable(z))
     # print(img)
     g = c.build_computational_graph(img)

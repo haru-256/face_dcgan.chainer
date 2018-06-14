@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     # batch データが1つでtrain:Trueの時にBNに通すとWarningが出る
     # https://github.com/chainer/chainer/pull/3996 のこと
-    z = np.random.uniform(-1, 1, (1, 1, 128, 128)).astype("f")
+    z = np.random.uniform(-1, 1, (1, 3, 128, 128)).astype("f")
     labels = np.array([1])
     model = Discriminator()
     img = model(Variable(z))

@@ -53,10 +53,14 @@ if __name__ == '__main__':
                         type=int, default=128)
     parser.add_argument('-g', '--gpu', help='specify gpu by this number. defalut value is 0',
                         choices=[0, 1], type=int, default=0)
+    parser.add_argument('-ks', '--ksize',
+                        help='specify ksize of generator by this number. any of following;'
+                        ' 4 or 6. defalut value is 6',
+                        choices=[4, 6], type=int, default=6)
     parser.add_argument('-dis', '--discriminator',
                         help='specify discriminator by this number. any of following;'
-                        ' 0: original, 1: minibatch discriminatio, 2: feature matching. defalut value is 0',
-                        choices=[0, 1, 2], type=int, default=0)
+                        ' 0: original, 1: minibatch discriminatio, 2: feature matching, 3: GAP. defalut value is 0',
+                        choices=[0, 1, 2, 3], type=int, default=0)
     parser.add_argument('-ts', '--tensor_shape',
                         help='specify Tensor shape by this numbers. first args denotes to B, seconds to C.'
                         ' defalut value are B:32, C:8',
@@ -75,6 +79,10 @@ if __name__ == '__main__':
     seed = args.seed
     number = args.number  # number of experiments
     out = "result_{0}/result_{0}_{1}".format(number, seed)
+    if args.ksize == 6:
+        pad = 2
+    else:
+        pad = 1
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
@@ -82,18 +90,32 @@ if __name__ == '__main__':
     print('# epoch: {}'.format(epoch))
     print('# out: {}'.format(out))
     print('# seed: {}'.format(seed))
-    print('# Tensor shape is A x {0} x {1}'.format(
-        args.tensor_shape[0], args.tensor_shape[1]))
+    print('# ksize: {}'.format(args.ksize))
+    print('# pad: {}'.format(pad))
 
-# import discrimination
+    # fix seed
+    np.random.seed(seed)
+    if chainer.backends.cuda.available:
+        chainer.backends.cuda.cupy.random.seed(seed)
+
+    # import discrimination & set up
     if args.discriminator == 0:
         print("# Original Discriminator")
         from discriminator import Discriminator
         from updater import DCGANUpdater
+        dis = Discriminator()
     elif args.discriminator == 1:
         print("# Discriminator applied Minibatch Discrimination")
+        print('# Tensor shape is A x {0} x {1}'.format(
+            args.tensor_shape[0], args.tensor_shape[1]))
         from discriminator_md import Discriminator
         from updater import DCGANUpdater
+        dis = Discriminator(B=args.tensor_shape[0], C=args.tensor_shape[1])
+    elif args.discriminator == 3:
+        print("Discriminator applied GAP")
+        from discriminator_gap import Discriminator
+        from updater import DCGANUpdater
+        dis = Discriminator()
     """
     elif args.discriminator == 2:
         print("# Discriminator applied matching")
@@ -102,14 +124,8 @@ if __name__ == '__main__':
     """
     print('')
 
-    # fix seed
-    np.random.seed(seed)
-    if chainer.backends.cuda.available:
-        chainer.backends.cuda.cupy.random.seed(seed)
-
-    # Set up a neural network to train
-    gen = Generator(n_hidden=n_hidden)
-    dis = Discriminator(B=args.tensor_shape[0], C=args.tensor_shape[1])
+    # Set up a generator
+    gen = Generator(n_hidden=n_hidden, ksize=args.ksize, pad=pad)
 
     if gpu >= 0:
         # Make a specified GPU current
