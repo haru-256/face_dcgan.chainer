@@ -13,6 +13,7 @@ from visualize import out_generated_image
 # from accuracy_reporter import accuracy_report
 import pathlib
 import matplotlib.pyplot as plt
+import pathlib
 plt.style.use("ggplot")
 
 
@@ -78,11 +79,15 @@ if __name__ == '__main__':
     epoch = args.epoch
     seed = args.seed
     number = args.number  # number of experiments
-    out = "result_{0}/result_{0}_{1}".format(number, seed)
+    out = pathlib.Path("result_{0}/result_{0}_{1}".format(number, seed))
     if args.ksize == 6:
         pad = 2
     else:
         pad = 1
+
+    # 引数(ハイパーパラメータの設定)の書き出し
+    with open(out / "args.txt", "w") as f:
+        f.write(str(args))
 
     print('GPU: {}'.format(gpu))
     print('# Minibatch-size: {}'.format(batch_size))
