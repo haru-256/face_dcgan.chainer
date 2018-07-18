@@ -3,13 +3,10 @@ from chainer import training
 from chainer.training import extensions
 from chainer.datasets import ImageDataset
 from chainer.serializers import save_npz
-from dataset import FaceData
-
-# from discriminator import Discriminator  # Dence nobias
-from discriminator_md import Discriminator  # GAP nobias
-from generator import Generator
-from updater import DCGANUpdater
-from visualize import out_generated_image
+from generator64_wgan import Generator
+from critic64 import Critic
+from updater import WGANUpdater
+from utils import out_generated_image
 # from accuracy_reporter import accuracy_report
 import pathlib
 import matplotlib.pyplot as plt
@@ -17,11 +14,11 @@ import pathlib
 plt.style.use("ggplot")
 
 
-def make_optimizer(model, alpha=0.0002, beta1=0.5):
+def make_optimizer(model):
     """
     Setup an optimizer
     """
-    optimizer = chainer.optimizers.Adam(alpha=alpha, beta1=beta1)
+    optimizer = chainer.optimizers.RMSprop(lr=0.00005, alpha=0.99, eps=1e-8)
     optimizer.setup(model)
     # optimizer.add_hook(chainer.optimizer_hooks.WeightDecay(0.0001), 'hook_dec')
 
@@ -35,7 +32,7 @@ if __name__ == '__main__':
     # パーサーを作る
     parser = argparse.ArgumentParser(
         prog='train',  # プログラム名
-        usage='train DCGAN',  # プログラムの利用方法
+        usage='train WGAN',  # プログラムの利用方法
         description='description',  # 引数のヘルプの前に表示
         epilog='end',  # 引数のヘルプの後で表示
         add_help=True,  # -h/–help オプションの追加
@@ -48,24 +45,29 @@ if __name__ == '__main__':
                         type=int, required=True)
     parser.add_argument('--hidden', help='the number of codes of Generator.',
                         type=int, default=100)
-    parser.add_argument('-e', '--epoch', help='the number of epoch, defalut value is 300',
-                        type=int, default=300)
-    parser.add_argument('-bs', '--batch_size', help='batch size. defalut value is 128',
-                        type=int, default=128)
+    parser.add_argument('-e', '--epoch', help='the number of epoch, defalut value is 25',
+                        type=int, default=25)
+    parser.add_argument('-bs', '--batch_size', help='batch size. defalut value is 64',
+                        type=int, default=64)
     parser.add_argument('-g', '--gpu', help='specify gpu by this number. defalut value is 0',
                         choices=[0, 1], type=int, default=0)
     parser.add_argument('-ks', '--ksize',
-                        help='specify ksize of generator by this number. any of following;'
-                        ' 4 or 6. defalut value is 6',
-                        choices=[4, 6], type=int, default=6)
-    parser.add_argument('-dis', '--discriminator',
-                        help='specify discriminator by this number. any of following;'
-                        ' 0: original, 1: minibatch discriminatio, 2: feature matching, 3: GAP. defalut value is 0',
-                        choices=[0, 1, 2, 3], type=int, default=0)
-    parser.add_argument('-ts', '--tensor_shape',
-                        help='specify Tensor shape by this numbers. first args denotes to B, seconds to C.'
-                        ' defalut value are B:32, C:8',
-                        type=int, default=[32, 8], nargs=2)
+                        help='specify kernel size of generator by this number. any of following;'
+                        '4 or 6. d defalut value is 4',
+                        choices=[4, 6], type=int, default=4)
+    parser.add_argument('-nc', '--n_critic',
+                        help='specify number of iteretion of critic by this number.'
+                        ' defalut value is 5',
+                        type=int, default=5)
+    parser.add_argument('-c_l', '--clip_lower',
+                        help='specify lower of clip range by this number.',
+                        type=float, default=-0.01)
+    parser.add_argument('-c_u', '--clip_upper',
+                        help='specify upper of clip range by this number.',
+                        type=float, default=0.01)
+    parser.add_argument('-nb', '--nobias',
+                        help='whether do\'t apply bias to convolution layer with no bias.',
+                        action='store_false')
     parser.add_argument('-V', '--version', version='%(prog)s 1.0.0',
                         action='version',
                         default=False)
@@ -103,71 +105,51 @@ if __name__ == '__main__':
     print('# seed: {}'.format(seed))
     print('# ksize: {}'.format(args.ksize))
     print('# pad: {}'.format(pad))
+    print('# nobias: {}'.format(args.nobias))
 
     # fix seed
     np.random.seed(seed)
     if chainer.backends.cuda.available:
         chainer.backends.cuda.cupy.random.seed(seed)
 
-    # import discrimination & set up
-    if args.discriminator == 0:
-        print("# Original Discriminator")
-        from discriminator import Discriminator
-        from updater import DCGANUpdater
-        dis = Discriminator()
-    elif args.discriminator == 1:
-        print("# Discriminator applied Minibatch Discrimination")
-        print('# Tensor shape is A x {0} x {1}'.format(
-            args.tensor_shape[0], args.tensor_shape[1]))
-        from discriminator_md import Discriminator
-        from updater import DCGANUpdater
-        dis = Discriminator(B=args.tensor_shape[0], C=args.tensor_shape[1])
-    elif args.discriminator == 3:
-        print("Discriminator applied GAP")
-        from discriminator_gap import Discriminator
-        from updater import DCGANUpdater
-        dis = Discriminator()
-    """
-    elif args.discriminator == 2:
-        print("# Discriminator applied matching")
-        from discriminator_fm import Discriminator
-        from updater_fm import DCGANUpdater
-    """
     print('')
 
-    # Set up a generator
-    gen = Generator(n_hidden=n_hidden, ksize=args.ksize, pad=pad)
+    # Set up a generator, critic
+    gen = Generator(n_hidden=n_hidden, ksize=args.ksize,
+                    pad=pad, nobias=args.nobias)
+    critic = Critic(ksize=args.ksize, pad=pad, nobias=args.nobias)
 
     if gpu >= 0:
         # Make a specified GPU current
         chainer.backends.cuda.get_device_from_id(gpu).use()
         gen.to_gpu()  # Copy the model to the GPU
-        dis.to_gpu()
+        critic.to_gpu()
 
     opt_gen = make_optimizer(gen)
-    opt_dis = make_optimizer(dis)
+    opt_critic = make_optimizer(critic)
 
     # Prepare Dataset
-    """
-    train = FaceData()
-    """
     data_dir = pathlib.Path("../data/cropped_data_128_df")
     abs_data_dir = data_dir.resolve()
-    print("data dir path:", abs_data_dir)
+    print("# data dir path:", abs_data_dir)
     data_path = [path for path in abs_data_dir.glob("*/*.jpg")]
-    print("data length:", len(data_path))
+    print("# data length:", len(data_path))
     data = ImageDataset(paths=data_path)  # dtype=np.float32
+
+    # Prepare Iterator
     train_iter = chainer.iterators.SerialIterator(data, batch_size)
 
     # Set up a updater and trainer
-    updater = DCGANUpdater(
-        models=(gen, dis),
+    updater = WGANUpdater(
+        models=(gen, critic),
         iterator=train_iter,
         optimizer={
             'gen': opt_gen,
-            'dis': opt_dis
+            'critic': opt_critic
         },
-        device=gpu)
+        device=gpu,
+        n_critic=args.n_critic,
+        clip_range=[args.clip_lower, args.clip_upper])
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
 
     snapshot_interval = (10, 'epoch')
@@ -184,26 +166,26 @@ if __name__ == '__main__':
         trigger=snapshot_interval)
     trainer.extend(
         extensions.snapshot_object(
-            dis, 'dis_epoch_{.updater.epoch}.npz', savefun=save_npz),
+            critic, 'critic_epoch_{.updater.epoch}.npz', savefun=save_npz),
         trigger=snapshot_interval)
     trainer.extend(extensions.LogReport())
     trainer.extend(
         extensions.PrintReport([
-            'epoch', 'iteration', 'gen/loss', 'dis/loss', 'elapsed_time',
+            'epoch', 'iteration', 'gen/loss', 'critic/loss', 'elapsed_time',
         ]),
         trigger=display_interval)
     trainer.extend(extensions.ProgressBar(update_interval=20))
     trainer.extend(
-        out_generated_image(gen, dis, 5, 5, seed, out),
+        out_generated_image(gen, 5, 5, seed, out),
         trigger=display_interval)
     trainer.extend(
         extensions.PlotReport(
-            ['gen/loss', 'dis/loss'],
+            ['gen/loss', 'critic/loss'],
             x_key='epoch',
             file_name='loss_{0}_{1}.jpg'.format(number, seed),
             grid=False))
     trainer.extend(extensions.dump_graph("gen/loss", out_name="gen.dot"))
-    trainer.extend(extensions.dump_graph("dis/loss", out_name="dis.dot"))
+    trainer.extend(extensions.dump_graph("critic/loss", out_name="critic.dot"))
 
     # Run the training
     trainer.run()

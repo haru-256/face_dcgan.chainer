@@ -98,7 +98,7 @@ class Discriminator(chainer.Chain):
     def __init__(self, bottom_width=128, ch=1024, wscale=0.02, B=32, C=8):
         super(Discriminator, self).__init__()
         self.b, self.c = B, C
-        print(" Discriminator applied GAP and nobias, minibatch discrimination")
+        print(" Discriminator nobias, minibatch discrimination")
         with self.init_scope():
             # initializers
             w = chainer.initializers.Normal(wscale)
